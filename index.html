@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria de imagenes con Pexels</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="headerApp">
+        <h1>Galeria de fotos</h1>
+        <button type="submit" id="botonFavoritos">Ver favoritos</button>
+    </header>
+    <main>
+
+        <!-- Botonera filtros imágenes -->
+        <section class="botonera">
+            <h2>Categrias</h2>
+            <div id="btnCategorias"></div>
+            
+        </section>
+
+        <!-- Buscador imágenes -->
+        <section class="buscador" id="buscadorImagenes">
+            <h2>Buscar imagenes</h2>
+            <input type="text">
+            <button type="submit">Buscar</button>
+        </section>
+
+        <!-- Desplegable orientación imágenes -->
+        <section>
+            <select name="desplegable" id="selectorOrientacion">
+                <option value="">Todas</option>
+                <option value="">Horizontal</option>
+                <option value="">Vertical</option>
+            </select>
+        </section>
+
+        <!-- Contenedor de resultado de imágenes -->
+        <section>
+            <h2>Resultados</h2>
+            <div id="contenedorImagenes"></div>
+        </section>
+
+        <!-- Botones navegación contenedor de imágenes -->
+        <section>
+            <button type="submit" id="back">
+                <=</button>
+                    <p id="paginaActual">1</p>
+                    <button type="submit" id="forward">=></button>
+        </section>
+
+        <!-- Contenedor Favoritos imágenes -->
+        <section id="contenedorFavoritos">
+            <h2>Favoritos</h2>
+            <div></div>
+        </section>
+    </main>
+    <!-- Mensaje error -->
+    <p id="mensajeError"></p>
+
+    <!-- JS script -->
+    <script src="js/script.js"></script>
+
+    <!-- FOOTER -->
+    <footer>Este es el footer</footer>
+</body>
+
+</html>
