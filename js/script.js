@@ -70,37 +70,36 @@ contenedorCategorias.addEventListener("click", (e) => {
 // Cuando el usuario haga clic en el boton buscar:
 botonBuscadorImagenes.addEventListener("click",(event)=>{
     event.preventDefault();
+//     leer texto del input 
+//     validar el texto 
     const textoIngresado = buscadorImagenes.value.trim();
     const regex = /^[a-zA-Z0-9\sñÑüÜáéíóúÁÉÍÓÚ]+$/;
-     if (textoIngresado !== "" && regex.test(textoIngresado)) {
+//     si el texto es correcto: 
+    if (textoIngresado !== "" && regex.test(textoIngresado)) {
+//         guardar texto en busquedaActual 
         busquedaActual = textoIngresado;
+//         poner paginaActual = 1
         paginaActual = 1;
+//         llamar buscarImagenes()
         buscarImagenes();
      } else {
+//     si el texto es incorrecto: mostrar mensaje de error
         alert("Por favor, ingresa un término de búsqueda válido.");
      }
 })
 
-//     leer texto del input 
-//     validar el texto 
-
-//     si el texto es correcto: 
-//         guardar texto en busquedaActual
-
-//         poner paginaActual = 1
-
-//         llamar buscarImagenes()
-
-//     si el texto es incorrecto:
-//         mostrar mensaje de error
 
 // Cuando el usuuario cambie el filtiro de orientacion :
 
-//     guardar orientacion elegida 
+// seleccionarOrientacion.addEventListener("change",(event)=>{
+// //     guardar orientacion elegida
+//         orientacionActual = event.target.value;
+// //     poner paginaActual = 1
+//         paginaActual = 1;
+// //     llamar buscarImagenes()
+//         buscarImagenes();
+// })
 
-//     poner paginaActual = 1
-
-//     llamar buscarImagenes()
 
 // Cuando el usuario haga clic en boton siguiente:
 
