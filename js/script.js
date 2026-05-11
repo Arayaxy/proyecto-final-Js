@@ -2,7 +2,7 @@
 // Crear variable APi_key
 const API_key = "c0Ll7l3wIZ7G6XESjHQFXUDADVSVvM9DX96AGefWhyHUCBHJ3oc5Z7RR";
 // Crear variable busqueda actual
-let busquedaActual = "nature"
+let busquedaActual = ""
 // crear variable orientacion actual 
 let orientacionActual = "Landscape"
 // crear variable pagina actual =1
@@ -20,7 +20,7 @@ const botonBuscadorImagenes = document.querySelector("#buscadorImagenes button")
 //     seleccionar orientacion
 const seleccionarOrientacion = document.querySelector("#selectorOrientacion")
 //     contenedor de galeria
-const seccionParaImagenes = document.querySelector("#contenedorImagenes")
+const contenedorImagenes = document.querySelector("#contenedorImagenes")
 //     boton anterior
 const botonRetroceder = document.querySelector("#back")
 //     boton siguiente
@@ -36,9 +36,9 @@ const mensajeError = document.querySelector("#mensajeError")
 // div categoria
 const contenedorCategorias = document.querySelector("#btnCategorias")
 //     botones categorías
-const btnCategoria = document.querySelector("#boton-categoria")
+
 //constante categorias para pintar los botones
-const categorias = ["Nature", "Space", "Fantasy"]
+const categorias = ["Nature", "anime", "gods"]
 
 // Eventos 
 // Cuando carge la pagina:
@@ -50,17 +50,28 @@ document.addEventListener("DOMContentLoaded", () => {
     buscarImagenes()
     cargarFavoritos()
 });
+contenedorCategorias.addEventListener("click", (e) => {
 
+    const boton = e.target.closest(".boton-categoria");
+
+    if (!boton) return;
+
+    busquedaActual = boton.dataset.categoria;
+
+    paginaActual = 1;
+
+    buscarImagenes();
+});
 //     guardar categoria en busqueda Actual
 //     poner paginaActual = 1
 //     llamar buscarImagenes()
-        btnCategoria?.addEventListener("click", () => {
-            busquedaActual = nombre;
-            paginaActual = 1;
-            buscarImagenes();
-        });
+
 
 // Cuando el usuario haga clic en el boton buscar:
+botonBuscadorImagenes.addEventListener("click",(e)=>{
+    event.preventDefault();
+    
+})
 
 //     leer texto del input 
 //     validar el texto 
@@ -102,18 +113,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Funciones
 const categoriaBtn = () => {
-    categorias.forEach(nombre => {
-        const btn = document.createElement('div')
-        btn.innerHTML = nombre;
-        btn.classList.add("boton-categoria")
-        contenedorCategorias.append(btn)
-    
-// Cuando el usuario haga clic en una categoria :
+    contenedorCategorias.innerHTML = "";
 
+    categorias.forEach((nombre) => {
 
+        obtenerImagenCategoria(nombre).then((foto) => {
+
+            const btn = document.createElement("button");
+            btn.classList.add("boton-categoria");
+
+            // guardar categoria en el botón
+            btn.dataset.categoria = nombre;
+
+            const imagenBoton = document.createElement("img");
+            imagenBoton.src = foto.src.medium;
+            imagenBoton.alt = nombre;
+
+            const texto = document.createElement("span");
+            texto.textContent = nombre;
+
+            btn.append(imagenBoton);
+            btn.append(texto);
+
+            contenedorCategorias.append(btn);
+        });
     });
+};
+const obtenerImagenCategoria = (categoria) => {
+    const url = `https://api.pexels.com/v1/search?query=${categoria}&per_page=1`;
 
-}
+    return fetch(url, {
+        headers: {
+            Authorization: API_key,
+        }
+    })
+        .then(res => res.json())
+        .then(data => data.photos[0]);
+};
 
 const buscarImagenes = () => {
 
@@ -151,23 +187,32 @@ const buscarImagenes = () => {
 }
 
 const mostrarGaleria = (fotos) => {
-
     // limpiar galeria 
+    contenedorImagenes.innerHTML = "";
+    fotos.forEach((foto) => {
+        // por cada foto:
+        const tarjetaFoto = document.createElement("div")
+        // mostrar imagen
+        const imagen = document.createElement("img")
+        imagen.src = foto.src.medium;
+        imagen.alt = foto.alt;
 
-    // por cada foto:
+        // mostrar fotografo
+        const autor = document.createElement("p")
+        autor.textContent = foto.photographer;
+        // crear boton favoritos
+        const nuevoFavorito = document.createElement("button")
+        nuevoFavorito.textContent = "Favorito"
 
-    // crear tarjeta for i<=6
+        // cuando se pulse favoritos
+        AgregarFavorito()
+        tarjetaFoto.append(imagen)
+        tarjetaFoto.append(autor)
+        tarjetaFoto.append(nuevoFavorito)
 
-    // mostrar imagen
-
-    // mostrar fotografo
-
-    // crear boton favoritos
-
-    // cuando se pulse favoritos
-    //     llamar AgregarFavorito()
-
-    // añadir tarjeta a galeria
+        // añadir tarjeta a galeria
+        contenedorImagenes.append(tarjetaFoto)
+    })
 }
 
 const AgregarFavorito = (fotos) => {
