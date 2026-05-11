@@ -68,9 +68,17 @@ contenedorCategorias.addEventListener("click", (e) => {
 
 
 // Cuando el usuario haga clic en el boton buscar:
-botonBuscadorImagenes.addEventListener("click",(e)=>{
+botonBuscadorImagenes.addEventListener("click",(event)=>{
     event.preventDefault();
-    
+    const textoIngresado = buscadorImagenes.value.trim();
+    const regex = /^[a-zA-Z0-9\sñÑüÜáéíóúÁÉÍÓÚ]+$/;
+     if (textoIngresado !== "" && regex.test(textoIngresado)) {
+        busquedaActual = textoIngresado;
+        paginaActual = 1;
+        buscarImagenes();
+     } else {
+        alert("Por favor, ingresa un término de búsqueda válido.");
+     }
 })
 
 //     leer texto del input 
