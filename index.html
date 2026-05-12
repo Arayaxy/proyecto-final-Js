@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galeria de imagenes con Pexels</title>
+    <title>Galería de imágenes con Pexels</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -12,51 +17,71 @@
 
     <!-- HEADER -->
     <header class="headerApp">
-        <h1>Galeria de fotos</h1>
+        <h1>Galería de fotos</h1>
+        <!-- Botón para mostrar la sección de imágenes favoritas -->
         <button type="submit" id="botonFavoritos">Ver favoritos</button>
     </header>
     <main>
 
-        <!-- Botonera filtros imágenes -->
+        <!--SECCIÓN: Botonera de categorías-->
         <section class="botonera">
-            <h2>Categrias</h2>
+            <h2>Categorías</h2>
+            <!-- Contenedor donde JS generará los botones -->
             <div id="btnCategorias"></div>
-            
         </section>
 
-        <!-- Buscador imágenes -->
+        <!-- SECCIÓN: Buscador de imágenes -->
         <section class="buscador" id="buscadorImagenes">
-            <h2>Buscar imagenes</h2>
+            <h2>Buscar imágenes</h2>
+
+            <!-- Campo de texto para escribir la búsqueda -->
             <input type="text">
+
+            <!-- Botón que ejecuta la búsqueda -->
             <button type="submit">Buscar</button>
         </section>
 
-        <!-- Desplegable orientación imágenes -->
+        <!--SECCIÓN: Selector de orientación-->
         <section>
             <select name="desplegable" id="selectorOrientacion">
-                <option value="landscape">Todas</option>
+                <option value="">Todas</option>
                 <option value="landscape">Horizontal</option>
                 <option value="portrait">Vertical</option>
             </select>
         </section>
 
-        <!-- Contenedor de resultado de imágenes -->
+        <!--SECCIÓN: Resultados de imágenes
+            Aquí se mostrarán las imágenes obtenidas desde la API de Pexels.-->
         <section>
             <h2>Resultados</h2>
+            <!-- Contenedor donde JS insertará las imágenes -->
             <div id="contenedorImagenes"></div>
         </section>
 
-        <!-- Botones navegación contenedor de imágenes -->
-        <section>
+        <!--SECCIÓN: Navegación entre páginas de resultados
+            Permite avanzar o retroceder entre páginas.-->
+
+        <section class="navegacion">
             <button type="submit" id="back">
-                <=</button>
-                    <p id="paginaActual">1</p>
-                    <button type="submit" id="forward">=></button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </button>
+            <p id="paginaActual">1</p>
+            <button type="submit" id="forward">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </button>
         </section>
 
-        <!-- Contenedor Favoritos imágenes -->
-        <section id="contenedorFavoritos">
-        </section>
+
+        <!--SECCIÓN: Favoritos
+            Aquí se mostrarán las imágenes marcadas como favoritas.
+            Se rellena dinámicamente desde JS.-->
+        <section id="contenedorFavoritos"></section>
     </main>
 
     <!-- JS script -->

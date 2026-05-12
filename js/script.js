@@ -301,6 +301,8 @@ const buscarImagenes = () => {
     contadorPagina.textContent = paginaActual;
     const url = `https://api.pexels.com/v1/search?query=${busquedaActual}&orientation=${orientacionActual}&per_page=6&page=${paginaActual}`;
 
+    contenedorImagenes.className = orientacionActual; // esta linea es nueva: es para que con el css cambie el aspect ratio vertical u horizontal //
+
     fetch(url, {
         headers: {
             Authorization: API_key,
