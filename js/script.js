@@ -200,16 +200,17 @@ contenedorImagenes.addEventListener("click", (event) => {
     agregarFavorito(fotoEncontrada);
 });
 
-// //evento para eliminar una imagen de favoritos //
-// secciónFavoritos.addEventListener("click",(event) => {
-    // const boton = event.target
-//     //eliminar del localstorage
-//     eliminarFavorito (foto.id);
-//     //validar si hay favoritos
-//     if (listaFavoritos.length === 0) {
-//     seccionFavoritos.innerHTML = <p>"no hay favoritos"</p>;
-// }
-// });
+//evento para eliminar una imagen de favoritos //
+seccionFavoritos.addEventListener("click",(event) => {
+    const boton = event.target
+    console.log(event.target.id)
+    //eliminar del localstorage
+    eliminarFavorito(boton.id);
+    //validar si hay favoritos
+   if (favoritos.length === 0) {
+     seccionFavoritos.innerHTML = `<p>no hay favoritos</p>`;
+ }
+});
 
 ////////////// Funciones //////////////////////
 
@@ -389,8 +390,9 @@ cargarFavoritos()
         const botonEliminarFavorito = document.createElement("button");
         botonEliminarFavorito.textContent = "Eliminar Favorito";
         botonEliminarFavorito.classList.add("boton-eliminar");
-        botonEliminarFavorito.dataset.id = foto.id;
+        botonEliminarFavorito.id = foto.id;
 
+        seccionFavoritos.append(textoFavoritos);
         tarjetaFavorito.append(imagenFavorito);
         tarjetaFavorito.append(botonEliminarFavorito);
         fragment.append(tarjetaFavorito)
@@ -408,7 +410,8 @@ cargarFavoritos()
  * @returns {void}
  */
 const eliminarFavorito = (id) => {
-    favoritos = favoritos.filter((favorito) => favorito.id !== id);
+    console.log(typeof id)
+    favoritos = favoritos.filter((favorito) => favorito.id != id);
 
     guardarFavoritos();
 

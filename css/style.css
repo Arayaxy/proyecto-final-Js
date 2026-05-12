@@ -28,10 +28,6 @@ body {
   transition: background-color 0.3s; /* Efecto suave */
 }
 
-.boton-categoria:hover {
-  background-color: #0056b3; /* Color al pasar el ratón */
-}
-
 
 section {
     background-color: rgb(255, 255, 255);
