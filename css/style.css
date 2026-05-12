@@ -1,41 +1,27 @@
 *{
-    margin:0;
+    margin:0 auto;
     padding:0;
     font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-    background-color: antiquewhite;
 }
 
 .headerApp {
     background-color: black;
-    color: antiquewhite;
     text-align: center;
     padding: 30px 20px;
 }
 
 .boton-categoria{
-    background-color: #007bff; /* Color de fondo */
-  color: white;              /* Color de texto */
-  padding: 12px 24px;        /* Espaciado interno */
-  border: none;              /* Elimina borde por defecto */
-  border-radius: 25px;       /* Bordes redondeados */
-  cursor: pointer;           /* Cambia el cursor */
-  font-size: 16px;
-  text-decoration: none;     /* Si es un enlace <a> */
-  display: inline-block;
-  transition: background-color 0.3s; /* Efecto suave */
 }
 
 
 section {
-    background-color: rgb(255, 255, 255);
 }
 
 footer{
     background-color: black;
-    color: antiquewhite;
     text-align: left;
     padding: 30px 20px;
 }

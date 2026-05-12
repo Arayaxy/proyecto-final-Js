@@ -6,6 +6,7 @@
  */
 const API_key = "c0Ll7l3wIZ7G6XESjHQFXUDADVSVvM9DX96AGefWhyHUCBHJ3oc5Z7RR";
 
+
 /**
  * Texto actual que se usa para buscar imágenes.
  *
@@ -19,7 +20,7 @@ let busquedaActual = "";
  *
  * @type {string}
  */
-let orientacionActual = "Landscape";
+let orientacionActual = "landscape";
 
 /**
  * Página actual de resultados.
@@ -42,6 +43,8 @@ let favoritos = [];
  * @type {Array<Object>}
  */
 let fotosActuales = [];
+
+
 
 /**
  * Input donde el usuario escribe la búsqueda.
@@ -137,6 +140,7 @@ const fragment = document.createDocumentFragment()
 document.addEventListener("DOMContentLoaded", () => {
     cargarFavoritos();
     categoriaBtn();
+
 });
 
 /**
@@ -155,6 +159,8 @@ contenedorCategorias.addEventListener("click", (e) => {
 
     buscarImagenes();
 });
+
+
 
 /**
  * Evento que se ejecuta cuando el usuario pulsa el botón de buscar.
@@ -201,16 +207,35 @@ contenedorImagenes.addEventListener("click", (event) => {
 });
 
 //evento para eliminar una imagen de favoritos //
-seccionFavoritos.addEventListener("click",(event) => {
+seccionFavoritos.addEventListener("click", (event) => {
     const boton = event.target
     console.log(event.target.id)
     //eliminar del localstorage
     eliminarFavorito(boton.id);
     //validar si hay favoritos
-   if (favoritos.length === 0) {
-     seccionFavoritos.innerHTML = `<p>no hay favoritos</p>`;
- }
+    if (favoritos.length === 0) {
+        seccionFavoritos.innerHTML = `<p>no hay favoritos</p>`;
+    }
 });
+
+//evento para avanzar entre páginas de la sección de fotos//
+botonAvanzar.addEventListener("click", () => {
+    paginaActual++;
+    buscarImagenes();
+    contadorPagina.textContent = paginaActual;
+})
+
+//evento para retroceder entre páginas de la sección de fotos//
+botonRetroceder.addEventListener("click", () => {
+    if (paginaActual > 1) {
+        paginaActual--;
+        buscarImagenes();
+        contadorPagina.textContent = paginaActual;
+    }
+})
+
+
+//orientacion
 
 ////////////// Funciones //////////////////////
 
@@ -270,6 +295,7 @@ const obtenerImagenCategoria = (categoria) => {
  * @returns {void}
  */
 const buscarImagenes = () => {
+    console.log(orientacionActual, "orientacion en buscar imagenes");
     const url = `https://api.pexels.com/v1/search?query=${busquedaActual}&orientation=${orientacionActual}&per_page=6&page=${paginaActual}`;
 
     fetch(url, {
@@ -291,7 +317,18 @@ const buscarImagenes = () => {
             console.log(error.status, error.statusText);
         });
 };
+const orientacion = () => {
+    orientacionActual = seleccionarOrientacion.value;
+    
+    buscarImagenes()
+    
+    paginaActual = 1
+    console.log(orientacionActual);
 
+}
+seleccionarOrientacion.addEventListener("change",() =>{
+    orientacion()
+})
 /**
  * Muestra las fotos recibidas en el contenedor de la galería.
  * También actualiza el array de fotos actuales.
@@ -325,6 +362,24 @@ const mostrarGaleria = (fotos) => {
         contenedorImagenes.append(tarjetaFoto);
     });
 };
+
+// navegación paginas de galería//
+// const navegarPaginas = async (pagina) => {
+//     try {
+//         const respuesta = await fetch(`https://api.pexels.com/v1/search?query=${busquedaActual}&orientation=${orientacionActual}&per_page=6&page=${paginaActual}`, {
+//             headers: {
+//                 Authorization: "c0Ll7l3wIZ7G6XESjHQFXUDADVSVvM9DX96AGefWhyHUCBHJ3oc5Z7RR"
+//             }
+//         });
+//         if (!respuesta.ok) throw new Error("Error al obtener datos");
+//         const datos = await respuesta.json();
+//         mostrarGaleria(datos.photos);
+//         contadorPagina.textContent = pagina;
+
+//     } catch (error) {
+//         console.error("Fallo en la navegación:", error);
+//     }
+// };
 
 /**
  * Añade una foto al array de favoritos si no está repetida.
@@ -374,7 +429,7 @@ const cargarFavoritos = () => {
  */
 const mostrarFavoritos = () => {
     seccionFavoritos.innerHTML = " ";
-cargarFavoritos()
+    cargarFavoritos()
     favoritos.forEach((foto) => {
         const tarjetaFavorito = document.createElement("div");
 
@@ -382,10 +437,10 @@ cargarFavoritos()
         imagenFavorito.src = foto.src.medium;
         imagenFavorito.alt = foto.alt;
 
-        const textoFavoritos = document.createElement ("H2");
+        const textoFavoritos = document.createElement("H2");
         textoFavoritos.textContent = "Tus fotos favoritas"
 
-    console.log(imagenFavorito)
+        console.log(imagenFavorito)
 
         const botonEliminarFavorito = document.createElement("button");
         botonEliminarFavorito.textContent = "Eliminar Favorito";
@@ -395,11 +450,12 @@ cargarFavoritos()
         seccionFavoritos.append(textoFavoritos);
         tarjetaFavorito.append(imagenFavorito);
         tarjetaFavorito.append(botonEliminarFavorito);
+
         fragment.append(tarjetaFavorito)
 
     });
     seccionFavoritos.append(fragment);
-    
+
 };
 
 /**
