@@ -209,7 +209,7 @@ contenedorImagenes.addEventListener("click", (event) => {
 //evento para eliminar una imagen de favoritos //
 seccionFavoritos.addEventListener("click", (event) => {
     const boton = event.target
-    console.log(event.target.id)
+    
     //eliminar del localstorage
     eliminarFavorito(boton.id);
     //validar si hay favoritos
@@ -222,7 +222,7 @@ seccionFavoritos.addEventListener("click", (event) => {
 botonAvanzar.addEventListener("click", () => {
     paginaActual++;
     buscarImagenes();
-    contadorPagina.textContent = paginaActual;
+    
 })
 
 //evento para retroceder entre páginas de la sección de fotos//
@@ -286,6 +286,9 @@ const obtenerImagenCategoria = (categoria) => {
     })
         .then(res => res.json())
         .then(data => data.photos[0]);
+            contadorPagina.textContent = paginaActual;
+            botonRetroceder.disabled = !data.prev_page;
+            botonAvanzar.disabled    = !data.next_page;
 };
 
 /**
@@ -295,7 +298,7 @@ const obtenerImagenCategoria = (categoria) => {
  * @returns {void}
  */
 const buscarImagenes = () => {
-    console.log(orientacionActual, "orientacion en buscar imagenes");
+    contadorPagina.textContent = paginaActual;
     const url = `https://api.pexels.com/v1/search?query=${busquedaActual}&orientation=${orientacionActual}&per_page=6&page=${paginaActual}`;
 
     fetch(url, {
@@ -323,7 +326,7 @@ const orientacion = () => {
     buscarImagenes()
     
     paginaActual = 1
-    console.log(orientacionActual);
+    
 
 }
 seleccionarOrientacion.addEventListener("change",() =>{
@@ -363,24 +366,6 @@ const mostrarGaleria = (fotos) => {
     });
 };
 
-// navegación paginas de galería//
-// const navegarPaginas = async (pagina) => {
-//     try {
-//         const respuesta = await fetch(`https://api.pexels.com/v1/search?query=${busquedaActual}&orientation=${orientacionActual}&per_page=6&page=${paginaActual}`, {
-//             headers: {
-//                 Authorization: "c0Ll7l3wIZ7G6XESjHQFXUDADVSVvM9DX96AGefWhyHUCBHJ3oc5Z7RR"
-//             }
-//         });
-//         if (!respuesta.ok) throw new Error("Error al obtener datos");
-//         const datos = await respuesta.json();
-//         mostrarGaleria(datos.photos);
-//         contadorPagina.textContent = pagina;
-
-//     } catch (error) {
-//         console.error("Fallo en la navegación:", error);
-//     }
-// };
-
 /**
  * Añade una foto al array de favoritos si no está repetida.
  * Después guarda los favoritos en localStorage.
@@ -419,7 +404,7 @@ const guardarFavoritos = () => {
 const cargarFavoritos = () => {
     favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
 
-    console.log(favoritos);
+    
 };
 
 /**
@@ -440,7 +425,7 @@ const mostrarFavoritos = () => {
         const textoFavoritos = document.createElement("H2");
         textoFavoritos.textContent = "Tus fotos favoritas"
 
-        console.log(imagenFavorito)
+
 
         const botonEliminarFavorito = document.createElement("button");
         botonEliminarFavorito.textContent = "Eliminar Favorito";
@@ -466,7 +451,7 @@ const mostrarFavoritos = () => {
  * @returns {void}
  */
 const eliminarFavorito = (id) => {
-    console.log(typeof id)
+    
     favoritos = favoritos.filter((favorito) => favorito.id != id);
 
     guardarFavoritos();
