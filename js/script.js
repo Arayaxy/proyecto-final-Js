@@ -1,462 +1,641 @@
-/**
- * API Key de Pexels.
- * Se utiliza para autorizar las peticiones a la API.
- *
- * @type {string}
- */
-const API_key = "c0Ll7l3wIZ7G6XESjHQFXUDADVSVvM9DX96AGefWhyHUCBHJ3oc5Z7RR";
-
-
-/**
- * Texto actual que se usa para buscar imágenes.
- *
- * @type {string}
- */
-let busquedaActual = "";
-
-/**
- * Orientación actual de las imágenes.
- * Puede ser "Landscape", "Portrait" o "Square", según la API de Pexels.
- *
- * @type {string}
- */
-let orientacionActual = "landscape";
-
-/**
- * Página actual de resultados.
- *
- * @type {number}
- */
-let paginaActual = 1;
-
-/**
- * Array donde se guardan las imágenes favoritas del usuario.
- *
- * @type {Array<Object>}
- */
-let favoritos = [];
-
-/**
- * Fotos que se están mostrando actualmente en pantalla.
- * Sirve para poder buscar una foto por su id al añadirla a favoritos.
- *
- * @type {Array<Object>}
- */
-let fotosActuales = [];
-
-
-
-/**
- * Input donde el usuario escribe la búsqueda.
- *
- * @type {HTMLInputElement}
- */
-const buscadorImagenes = document.querySelector("#buscadorImagenes input");
-
-/**
- * Botón para realizar la búsqueda.
- *
- * @type {HTMLButtonElement}
- */
-const botonBuscadorImagenes = document.querySelector("#buscadorImagenes button");
-
-/**
- * Selector de orientación de imágenes.
- *
- * @type {HTMLSelectElement}
- */
-const seleccionarOrientacion = document.querySelector("#selectorOrientacion");
-
-/**
- * Contenedor donde se muestran las imágenes buscadas.
- *
- * @type {HTMLElement}
- */
-const contenedorImagenes = document.querySelector("#contenedorImagenes");
-
-/**
- * Botón para retroceder de página.
- *
- * @type {HTMLButtonElement}
- */
-const botonRetroceder = document.querySelector("#back");
-
-/**
- * Botón para avanzar de página.
- *
- * @type {HTMLButtonElement}
- */
-const botonAvanzar = document.querySelector("#forward");
-
-/**
- * Elemento donde se muestra el número de página actual.
- *
- * @type {HTMLElement}
- */
-const contadorPagina = document.querySelector("#paginaActual");
-
-/**
- * Botón para ver la sección de favoritos.
- *
- * @type {HTMLButtonElement}
- */
-const verFavoritos = document.querySelector("#botonFavoritos");
-
-/**
- * Contenedor donde se muestran las imágenes favoritas.
- *
- * @type {HTMLElement}
- */
-const seccionFavoritos = document.querySelector("#contenedorFavoritos");
-
-/**
- * Elemento donde se muestra un mensaje de error.
- *
- * @type {HTMLElement}
- */
-const mensajeError = document.querySelector("#mensajeError");
-
-/**
- * Contenedor donde se pintan los botones de categorías.
- *
- * @type {HTMLElement}
- */
-const contenedorCategorias = document.querySelector("#btnCategorias");
-
-/**
- * Categorías que se mostrarán como botones en la página.
- *
- * @type {Array<string>}
- */
-const categorias = ["Nature", "anime", "gods"];
-
-const fragment = document.createDocumentFragment()
-
-
-/**
- * Evento que se ejecuta cuando el DOM ha cargado completamente.
- * Carga los favoritos guardados y crea los botones de categorías.
- */
 document.addEventListener("DOMContentLoaded", () => {
-    cargarFavoritos();
-    categoriaBtn();
 
-});
+    // VARIABLES
 
-/**
- * Evento delegado para detectar clics en los botones de categoría.
- * Guarda la categoría seleccionada como búsqueda actual y busca imágenes.
- *
- * @param {MouseEvent} e Evento de clic.
- */
-contenedorCategorias.addEventListener("click", (e) => {
-    const boton = e.target.closest(".boton-categoria");
+    /**
+     * API Key de Pexels.
+     * Se utiliza para autorizar las peticiones a la API.
+     *
+     * @type {string}
+     */
+    const API_key = "c0Ll7l3wIZ7G6XESjHQFXUDADVSVvM9DX96AGefWhyHUCBHJ3oc5Z7RR";
 
-    if (!boton) return;
+    /**
+     * Texto actual que se usa para buscar imágenes.
+     *
+     * @type {string}
+     */
+    let busquedaActual = "";
 
-    busquedaActual = boton.dataset.categoria;
-    paginaActual = 1;
+    /**
+     * Orientación actual de las imágenes.
+     * Puede ser "landscape", "portrait" o "" para todas.
+     *
+     * @type {string}
+     */
+    let orientacionActual = "landscape";
 
-    buscarImagenes();
-});
+    /**
+     * Página actual de resultados.
+     *
+     * @type {number}
+     */
+    let paginaActual = 1;
 
+    /**
+     * Array donde se guardan las imágenes favoritas.
+     *
+     * @type {Array<Object>}
+     */
+    let favoritos = [];
 
+    /**
+     * Array con las fotos que se están mostrando actualmente en pantalla.
+     * Sirve para encontrar una foto por su id al añadirla a favoritos.
+     *
+     * @type {Array<Object>}
+     */
+    let fotosActuales = [];
 
-/**
- * Evento que se ejecuta cuando el usuario pulsa el botón de buscar.
- * Valida el texto introducido y realiza la búsqueda si es correcto.
- *
- * @param {MouseEvent} event Evento de clic.
- */
-botonBuscadorImagenes.addEventListener("click", (event) => {
-    event.preventDefault();
+    /**
+     * Controla si la sección de favoritos está visible o no.
+     *
+     * @type {boolean}
+     */
+    let favoritosVisibles = false;
 
-    const textoIngresado = buscadorImagenes.value.trim();
-    const regex = /^[a-zA-Z0-9\sñÑüÜáéíóúÁÉÍÓÚ]+$/;
+    /**
+     * Categorías iniciales que se mostrarán como botones.
+     *
+     * @type {Array<string>}
+     */
+    const categorias = ["Nature", "anime", "gods"];
 
-    if (textoIngresado !== "" && regex.test(textoIngresado)) {
-        busquedaActual = textoIngresado;
-        paginaActual = 1;
-        buscarImagenes();
-    } else {
-        alert("Por favor, ingresa un término de búsqueda válido.");
-    }
-});
+    /**
+     * Input donde el usuario escribe la búsqueda.
+     *
+     * @type {HTMLInputElement}
+     */
+    const buscadorImagenes = document.querySelector("#buscadorImagenes input");
 
-//cuando clicas el boton abre favoritos
-verFavoritos.addEventListener("click", () => {
-    mostrarFavoritos();
-});
+    /**
+     * Selector de orientación de las imágenes.
+     *
+     * @type {HTMLSelectElement}
+     */
+    const seleccionarOrientacion = document.querySelector("#selectorOrientacion");
 
+    /**
+     * Contenedor donde se muestran las imágenes de la galería.
+     *
+     * @type {HTMLElement}
+     */
+    const contenedorImagenes = document.querySelector("#contenedorImagenes");
 
-/**
- * Evento delegado para detectar clics en los botones de favorito
- * dentro de la galería de imágenes.
- *
- * @param {MouseEvent} event Evento de clic.
- */
-contenedorImagenes.addEventListener("click", (event) => {
-    const boton = event.target.closest(".boton-favorito");
+    /**
+     * Elemento donde se muestra el número de página actual.
+     *
+     * @type {HTMLElement}
+     */
+    const contadorPagina = document.querySelector("#paginaActual");
 
-    if (!boton) return;
+    /**
+     * Contenedor donde se muestran las imágenes favoritas.
+     *
+     * @type {HTMLElement}
+     */
+    const seccionFavoritos = document.querySelector("#contenedorFavoritos");
 
-    const idFoto = Number(boton.dataset.id);
-    const fotoEncontrada = fotosActuales.find((foto) => foto.id === idFoto);
+    /**
+     * Contenedor donde se pintan los botones de categorías.
+     *
+     * @type {HTMLElement}
+     */
+    const contenedorCategorias = document.querySelector("#btnCategorias");
 
-    agregarFavorito(fotoEncontrada);
-});
+    /**
+     * Botón para mostrar u ocultar favoritos.
+     *
+     * @type {HTMLButtonElement}
+     */
+    const botonFavoritos = document.querySelector("#botonFavoritos");
 
-//evento para eliminar una imagen de favoritos //
-seccionFavoritos.addEventListener("click", (event) => {
-    const boton = event.target
-    
-    //eliminar del localstorage
-    eliminarFavorito(boton.id);
-    //validar si hay favoritos
-    if (favoritos.length === 0) {
-        seccionFavoritos.innerHTML = `<p>no hay favoritos</p>`;
-    }
-});
+    /**
+     * Botón para retroceder una página.
+     *
+     * @type {HTMLButtonElement}
+     */
+    const botonRetroceder = document.querySelector("#back");
 
-//evento para avanzar entre páginas de la sección de fotos//
-botonAvanzar.addEventListener("click", () => {
-    paginaActual++;
-    buscarImagenes();
-    
-})
+    /**
+     * Botón para avanzar una página.
+     *
+     * @type {HTMLButtonElement}
+     */
+    const botonAvanzar = document.querySelector("#forward");
 
-//evento para retroceder entre páginas de la sección de fotos//
-botonRetroceder.addEventListener("click", () => {
-    if (paginaActual > 1) {
-        paginaActual--;
-        buscarImagenes();
-        contadorPagina.textContent = paginaActual;
-    }
-})
+    // EVENTOS
 
-
-//orientacion
-
-////////////// Funciones //////////////////////
-
-/**
- * Crea los botones de categorías dinámicamente.
- * Por cada categoría obtiene una imagen de Pexels y crea un botón con imagen y texto.
- *
- * @returns {void}
- */
-const categoriaBtn = () => {
-    contenedorCategorias.innerHTML = "";
-
-    categorias.forEach((nombre) => {
-        obtenerImagenCategoria(nombre).then((foto) => {
-            const btn = document.createElement("button");
-            btn.classList.add("boton-categoria");
-
-            btn.dataset.categoria = nombre;
-
-            const imagenBoton = document.createElement("img");
-            imagenBoton.src = foto.src.medium;
-            imagenBoton.alt = nombre;
-
-            const texto = document.createElement("span");
-            texto.textContent = nombre;
-
-            btn.append(imagenBoton);
-            btn.append(texto);
-
-            contenedorCategorias.append(btn);
-        });
+    /**
+     * Evento delegado para controlar todos los clicks de la aplicación.
+     *
+     * Detecta clicks en:
+     * - botones de categoría
+     * - botones de favorito
+     * - botones de eliminar favorito
+     * - botón buscar
+     * - botón ver favoritos
+     * - botón siguiente
+     * - botón anterior
+     */
+    document.body.addEventListener("click", (event) => {
+        manejarClicks(event);
     });
-};
 
-/**
- * Obtiene una imagen de la API de Pexels según una categoría.
- *
- * @param {string} categoria Categoría que se quiere buscar.
- * @returns {Promise<Object>} Promesa que devuelve la primera foto encontrada.
- */
-const obtenerImagenCategoria = (categoria) => {
-    const url = `https://api.pexels.com/v1/search?query=${categoria}&per_page=1`;
+    /**
+     * Evento delegado para controlar cambios en elementos de formulario.
+     *
+     * Actualmente controla el cambio del selector de orientación.
+     */
+    document.body.addEventListener("change", (event) => {
+        manejarCambios(event);
+    });
 
-    return fetch(url, {
-        headers: {
-            Authorization: API_key,
+    // FUNCIONES
+
+    /**
+     * Carga los favoritos guardados en localStorage.
+     * Si no hay favoritos guardados, deja el array vacío.
+     *
+     * @returns {void}
+     */
+    const cargarFavoritos = () => {
+        favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
+    };
+
+    /**
+     * Guarda el array de favoritos en localStorage.
+     *
+     * @returns {void}
+     */
+    const guardarFavoritos = () => {
+        localStorage.setItem("favoritos", JSON.stringify(favoritos));
+    };
+
+    /**
+     * Crea la URL para buscar imágenes en la API de Pexels.
+     *
+     * @param {string} busqueda Texto que se quiere buscar.
+     * @param {string} orientacion Orientación de la imagen.
+     * @param {number} pagina Página de resultados.
+     * @returns {string} URL completa para hacer la petición.
+     */
+    const crearUrlBusqueda = (busqueda, orientacion, pagina) => {
+        return `https://api.pexels.com/v1/search?query=${busqueda}&orientation=${orientacion}&per_page=6&page=${pagina}`;
+    };
+
+    /**
+     * Obtiene una imagen de Pexels para representar una categoría.
+     *
+     * @param {string} categoria Categoría que se quiere buscar.
+     * @returns {Promise<Object|null>} Devuelve la primera foto encontrada o null si falla.
+     */
+    const obtenerImagenCategoria = async (categoria) => {
+        const url = `https://api.pexels.com/v1/search?query=${categoria}&per_page=1`;
+
+        try {
+            const respuesta = await fetch(url, {
+                headers: {
+                    Authorization: API_key,
+                },
+            });
+
+            if (!respuesta.ok) {
+                throw new Error("Error al cargar la categoría.");
+            }
+
+            const data = await respuesta.json();
+
+            return data.photos[0] || null;
+
+        } catch (error) {
+            console.log(error);
+            return null;
         }
-    })
-        .then(res => res.json())
-        .then(data => data.photos[0]);
-            contadorPagina.textContent = paginaActual;
-            botonRetroceder.disabled = !data.prev_page;
-            botonAvanzar.disabled    = !data.next_page;
-};
+    };
 
-/**
- * Busca imágenes en la API de Pexels usando la búsqueda actual,
- * la orientación actual y la página actual.
- *
- * @returns {void}
- */
-const buscarImagenes = () => {
-    contadorPagina.textContent = paginaActual;
-    const url = `https://api.pexels.com/v1/search?query=${busquedaActual}&orientation=${orientacionActual}&per_page=6&page=${paginaActual}`;
-
-    contenedorImagenes.className = orientacionActual; // esta linea es nueva: es para que con el css cambie el aspect ratio vertical u horizontal //
-
-    fetch(url, {
-        headers: {
-            Authorization: API_key,
-        }
-    })
-        .then((res) => {
-            return res.ok
-                ? res.json()
-                : Promise.reject(res);
-        })
-        .then((data) => {
-            console.log(data);
-            mostrarGaleria(data.photos);
-            console.log(data.photos);
-        })
-        .catch((error) => {
-            console.log(error.status, error.statusText);
-        });
-};
-const orientacion = () => {
-    orientacionActual = seleccionarOrientacion.value;
-    
-    buscarImagenes()
-    
-    paginaActual = 1
-    
-
-}
-seleccionarOrientacion.addEventListener("change",() =>{
-    orientacion()
-})
-/**
- * Muestra las fotos recibidas en el contenedor de la galería.
- * También actualiza el array de fotos actuales.
- *
- * @param {Array<Object>} fotos Array de fotos recibidas desde Pexels.
- * @returns {void}
- */
-const mostrarGaleria = (fotos) => {
-    contenedorImagenes.innerHTML = "";
-    fotosActuales = fotos;
-
-    fotos.forEach((foto) => {
-        const tarjetaFoto = document.createElement("div");
+    /**
+     * Crea un botón de categoría con una imagen y un texto.
+     *
+     * @param {string} categoria Nombre de la categoría.
+     * @param {Object} foto Foto recibida desde Pexels.
+     * @returns {HTMLButtonElement} Botón de categoría creado.
+     */
+    const crearBotonCategoria = (categoria, foto) => {
+        const boton = document.createElement("button");
+        boton.classList.add("boton-categoria");
+        boton.dataset.categoria = categoria;
 
         const imagen = document.createElement("img");
         imagen.src = foto.src.medium;
-        imagen.alt = foto.alt;
+        imagen.alt = categoria;
+
+        const texto = document.createElement("span");
+        texto.textContent = categoria;
+
+        boton.append(imagen, texto);
+
+        return boton;
+    };
+
+    /**
+     * Pinta los botones de categorías en el contenedor de categorías.
+     *
+     * @param {Array<string>} listaCategorias Lista de categorías que se quieren mostrar.
+     * @returns {Promise<void>}
+     */
+    const pintarCategorias = async (listaCategorias) => {
+        contenedorCategorias.innerHTML = "";
+
+        const fragment = document.createDocumentFragment();
+
+        for (const categoria of listaCategorias) {
+            const foto = await obtenerImagenCategoria(categoria);
+
+            if (foto) {
+                const boton = crearBotonCategoria(categoria, foto);
+                fragment.append(boton);
+            }
+        }
+
+        contenedorCategorias.append(fragment);
+    };
+
+    /**
+     * Crea una tarjeta HTML para una imagen de la galería.
+     *
+     * @param {Object} foto Foto recibida desde Pexels.
+     * @returns {HTMLDivElement} Tarjeta de imagen creada.
+     */
+    const crearTarjetaImagen = (foto) => {
+        const tarjeta = document.createElement("div");
+
+        const imagen = document.createElement("img");
+        imagen.src = foto.src.medium;
+        imagen.alt = foto.alt || "Imagen de Pexels";
 
         const autor = document.createElement("p");
         autor.textContent = foto.photographer;
 
-        const nuevoFavorito = document.createElement("button");
-        nuevoFavorito.textContent = "Favorito";
-        nuevoFavorito.classList.add("boton-favorito");
-        nuevoFavorito.dataset.id = foto.id;
+        const botonFavorito = document.createElement("button");
+        botonFavorito.textContent = "Favorito";
+        botonFavorito.classList.add("boton-favorito");
+        botonFavorito.dataset.id = foto.id;
 
-        tarjetaFoto.append(imagen);
-        tarjetaFoto.append(autor);
-        tarjetaFoto.append(nuevoFavorito);
+        tarjeta.append(imagen, autor, botonFavorito);
 
-        contenedorImagenes.append(tarjetaFoto);
-    });
-};
+        return tarjeta;
+    };
 
-/**
- * Añade una foto al array de favoritos si no está repetida.
- * Después guarda los favoritos en localStorage.
- *
- * @param {Object} foto Foto que se quiere añadir a favoritos.
- * @param {number} foto.id Identificador único de la foto.
- * @returns {void}
- */
-const agregarFavorito = (foto) => {
-    const existe = favoritos.some((favorito) => favorito.id === foto.id);
+    /**
+     * Muestra las imágenes recibidas en la galería.
+     * También actualiza el array de fotos actuales.
+     *
+     * @param {Array<Object>} fotos Array de fotos recibidas desde Pexels.
+     * @returns {void}
+     */
+    const mostrarGaleria = (fotos) => {
+        contenedorImagenes.innerHTML = "";
+        fotosActuales = fotos;
 
-    if (!existe) {
-        favoritos.push(foto);
+        contenedorImagenes.className = orientacionActual;
+
+        favoritosVisibles = false;
+        botonFavoritos.textContent = "Ver favoritos";
+        seccionFavoritos.innerHTML = "";
+
+        if (fotos.length === 0) {
+            contenedorImagenes.innerHTML = "<p>No se encontraron imágenes.</p>";
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        fotos.forEach((foto) => {
+            const tarjeta = crearTarjetaImagen(foto);
+            fragment.append(tarjeta);
+        });
+
+        contenedorImagenes.append(fragment);
+    };
+
+    /**
+     * Actualiza el contador de página y activa o desactiva los botones de paginación.
+     *
+     * @param {Object} data Datos completos recibidos desde la API de Pexels.
+     * @returns {void}
+     */
+    const actualizarPaginacion = (data) => {
+        contadorPagina.textContent = paginaActual;
+
+        botonRetroceder.disabled = paginaActual === 1;
+        botonAvanzar.disabled = !data.next_page;
+    };
+
+    /**
+     * Busca imágenes en la API de Pexels usando la búsqueda actual,
+     * la orientación actual y la página actual.
+     *
+     * @returns {Promise<void>}
+     */
+    const buscarImagenes = async () => {
+        if (busquedaActual === "") {
+            alert("Primero busca algo o elige una categoría.");
+            return;
+        }
+
+        const url = crearUrlBusqueda(
+            busquedaActual,
+            orientacionActual,
+            paginaActual
+        );
+
+        try {
+            const respuesta = await fetch(url, {
+                headers: {
+                    Authorization: API_key,
+                },
+            });
+
+            if (!respuesta.ok) {
+                throw new Error("Error al buscar imágenes.");
+            }
+
+            const data = await respuesta.json();
+
+            mostrarGaleria(data.photos);
+            actualizarPaginacion(data);
+
+        } catch (error) {
+            console.log(error);
+            alert("Ha ocurrido un error al buscar imágenes.");
+        }
+    };
+
+    /**
+     * Obtiene el texto escrito por el usuario en el input,
+     * lo valida y realiza una búsqueda si es correcto.
+     *
+     * @returns {void}
+     */
+    const buscarDesdeInput = () => {
+        const textoIngresado = buscadorImagenes.value.trim();
+        const regex = /^[a-zA-Z0-9\sñÑüÜáéíóúÁÉÍÓÚ]+$/;
+
+        if (textoIngresado !== "" && regex.test(textoIngresado)) {
+            busquedaActual = textoIngresado;
+            paginaActual = 1;
+
+            buscarImagenes();
+        } else {
+            alert("Por favor, ingresa un término de búsqueda válido.");
+        }
+    };
+
+    /**
+     * Realiza una búsqueda usando una categoría seleccionada.
+     *
+     * @param {string} categoria Categoría seleccionada por el usuario.
+     * @returns {void}
+     */
+    const buscarPorCategoria = (categoria) => {
+        busquedaActual = categoria;
+        paginaActual = 1;
+
+        buscarImagenes();
+    };
+
+    /**
+     * Cambia la orientación actual de las imágenes y vuelve a buscar.
+     *
+     * @returns {void}
+     */
+    const cambiarOrientacion = () => {
+        orientacionActual = seleccionarOrientacion.value;
+        paginaActual = 1;
+
+        buscarImagenes();
+    };
+
+    /**
+     * Cambia la página actual de resultados.
+     *
+     * @param {number} movimiento Número que indica si se avanza o retrocede.
+     * Usa 1 para avanzar y -1 para retroceder.
+     * @returns {void}
+     */
+    const cambiarPagina = (movimiento) => {
+        const nuevaPagina = paginaActual + movimiento;
+
+        if (nuevaPagina < 1) return;
+
+        paginaActual = nuevaPagina;
+
+        buscarImagenes();
+    };
+
+    /**
+     * Añade una imagen a favoritos si no está repetida.
+     *
+     * @param {number} idFoto ID de la foto que se quiere añadir.
+     * @returns {void}
+     */
+    const agregarFavorito = (idFoto) => {
+        const fotoEncontrada = fotosActuales.find((foto) => foto.id === idFoto);
+
+        if (!fotoEncontrada) return;
+
+        const existe = favoritos.some((foto) => foto.id === idFoto);
+
+        if (existe) {
+            alert("Imagen repetida. Revisa tu lista.");
+            return;
+        }
+
+        favoritos.push(fotoEncontrada);
         guardarFavoritos();
-        alert("Añadido a favoritos");
-    } else {
-        alert("Imagen repetida revisa tu lista");
-    }
-};
 
-/**
- * Guarda el array de favoritos en localStorage.
- *
- * @returns {void}
- */
-const guardarFavoritos = () => {
-    localStorage.setItem("favoritos", JSON.stringify(favoritos));
-};
+        alert("Añadido a favoritos.");
+    };
 
-/**
- * Carga los favoritos guardados en localStorage.
- * Si no hay favoritos guardados, deja el array vacío.
- *
- * @returns {void}
- */
-const cargarFavoritos = () => {
-    favoritos = JSON.parse(localStorage.getItem("favoritos")) || [];
+    /**
+     * Crea una tarjeta HTML para una imagen favorita.
+     *
+     * @param {Object} foto Foto favorita.
+     * @returns {HTMLDivElement} Tarjeta de favorito creada.
+     */
+    const crearTarjetaFavorito = (foto) => {
+        const tarjeta = document.createElement("div");
 
-    
-};
+        const imagen = document.createElement("img");
+        imagen.src = foto.src.medium;
+        imagen.alt = foto.alt || "Imagen favorita";
 
-/**
- * Muestra las imágenes favoritas en su contenedor.
- *
- * @returns {void}
- */
-const mostrarFavoritos = () => {
-    seccionFavoritos.innerHTML = " ";
-    cargarFavoritos()
-    favoritos.forEach((foto) => {
-        const tarjetaFavorito = document.createElement("div");
+        const botonEliminar = document.createElement("button");
+        botonEliminar.textContent = "Eliminar favorito";
+        botonEliminar.classList.add("boton-eliminar");
+        botonEliminar.dataset.id = foto.id;
 
-        const imagenFavorito = document.createElement("img");
-        imagenFavorito.src = foto.src.medium;
-        imagenFavorito.alt = foto.alt;
+        tarjeta.append(imagen, botonEliminar);
 
-        const textoFavoritos = document.createElement("H2");
-        textoFavoritos.textContent = "Tus fotos favoritas"
+        return tarjeta;
+    };
 
+    /**
+     * Muestra todas las imágenes favoritas guardadas.
+     *
+     * @returns {void}
+     */
+    const mostrarFavoritos = () => {
+        cargarFavoritos();
 
+        seccionFavoritos.innerHTML = "";
 
-        const botonEliminarFavorito = document.createElement("button");
-        botonEliminarFavorito.textContent = "Eliminar Favorito";
-        botonEliminarFavorito.classList.add("boton-eliminar");
-        botonEliminarFavorito.id = foto.id;
+        const titulo = document.createElement("h2");
+        titulo.textContent = "Tus fotos favoritas";
+        seccionFavoritos.append(titulo);
 
-        seccionFavoritos.append(textoFavoritos);
-        tarjetaFavorito.append(imagenFavorito);
-        tarjetaFavorito.append(botonEliminarFavorito);
+        if (favoritos.length === 0) {
+            const mensaje = document.createElement("p");
+            mensaje.textContent = "No hay favoritos.";
+            seccionFavoritos.append(mensaje);
+            return;
+        }
 
-        fragment.append(tarjetaFavorito)
+        const fragment = document.createDocumentFragment();
 
-    });
-    seccionFavoritos.append(fragment);
+        favoritos.forEach((foto) => {
+            const tarjeta = crearTarjetaFavorito(foto);
+            fragment.append(tarjeta);
+        });
 
-};
+        seccionFavoritos.append(fragment);
+    };
 
-/**
- * Elimina una imagen del array de favoritos según su id.
- * Después guarda el nuevo array en localStorage y vuelve a pintar favoritos.
- *
- * @param {number} id Id de la imagen que se quiere eliminar.
- * @returns {void}
- */
-const eliminarFavorito = (id) => {
-    
-    favoritos = favoritos.filter((favorito) => favorito.id != id);
+    /**
+     * Oculta la sección de favoritos limpiando su contenido.
+     *
+     * @returns {void}
+     */
+    const ocultarFavoritos = () => {
+        seccionFavoritos.innerHTML = "";
+    };
 
-    guardarFavoritos();
+    /**
+     * Alterna entre mostrar y ocultar la sección de favoritos.
+     *
+     * @returns {void}
+     */
+    const alternarFavoritos = () => {
+        favoritosVisibles = !favoritosVisibles;
 
-    mostrarFavoritos();
-};
+        if (favoritosVisibles) {
+            mostrarFavoritos();
+            botonFavoritos.textContent = "Ocultar favoritos";
+        } else {
+            ocultarFavoritos();
+            botonFavoritos.textContent = "Ver favoritos";
+        }
+    };
+
+    /**
+     * Elimina una imagen de favoritos según su ID.
+     * Después guarda los cambios y vuelve a pintar la sección de favoritos.
+     *
+     * @param {number} idFoto ID de la foto que se quiere eliminar.
+     * @returns {void}
+     */
+    const eliminarFavorito = (idFoto) => {
+        favoritos = favoritos.filter((foto) => foto.id !== idFoto);
+
+        guardarFavoritos();
+        mostrarFavoritos();
+    };
+
+    /**
+     * Maneja todos los clicks principales de la aplicación usando delegación de eventos.
+     *
+     * @param {MouseEvent} event Evento de click.
+     * @returns {void}
+     */
+    const manejarClicks = (event) => {
+        const botonCategoria = event.target.closest(".boton-categoria");
+        const botonFavorito = event.target.closest(".boton-favorito");
+        const botonEliminar = event.target.closest(".boton-eliminar");
+        const botonBuscar = event.target.closest("#buscadorImagenes button");
+        const botonVerFavoritos = event.target.closest("#botonFavoritos");
+        const botonSiguiente = event.target.closest("#forward");
+        const botonAnterior = event.target.closest("#back");
+
+        if (botonCategoria) {
+            buscarPorCategoria(botonCategoria.dataset.categoria);
+            return;
+        }
+
+        if (botonFavorito) {
+            const idFoto = Number(botonFavorito.dataset.id);
+            agregarFavorito(idFoto);
+            return;
+        }
+
+        if (botonEliminar) {
+            const idFoto = Number(botonEliminar.dataset.id);
+            eliminarFavorito(idFoto);
+            return;
+        }
+
+        if (botonBuscar) {
+            event.preventDefault();
+            buscarDesdeInput();
+            return;
+        }
+
+        if (botonVerFavoritos) {
+            alternarFavoritos();
+            return;
+        }
+
+        if (botonSiguiente) {
+            cambiarPagina(1);
+            return;
+        }
+
+        if (botonAnterior) {
+            cambiarPagina(-1);
+            return;
+        }
+    };
+
+    /**
+     * Maneja los cambios en elementos de formulario usando delegación de eventos.
+     *
+     * Actualmente detecta el cambio del selector de orientación.
+     *
+     * @param {Event} event Evento change.
+     * @returns {void}
+     */
+    const manejarCambios = (event) => {
+        const selector = event.target.closest("#selectorOrientacion");
+
+        if (selector) {
+            cambiarOrientacion();
+        }
+    };
+
+    /**
+     * Inicia la aplicación.
+     * Carga favoritos, pinta las categorías y configura la paginación inicial.
+     *
+     * @returns {void}
+     */
+    const iniciarApp = () => {
+        cargarFavoritos();
+        pintarCategorias(categorias);
+
+        contadorPagina.textContent = paginaActual;
+        botonRetroceder.disabled = true;
+        botonAvanzar.disabled = true;
+    };
+
+    iniciarApp();
+});
